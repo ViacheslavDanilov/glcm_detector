@@ -24,8 +24,8 @@ toc;
 %% Global variables
 onlyCath = 0;
 if onlyCath == 1
-    limits = struct('maxBlobsArea', 4,... % 5
-                    'minArea', 5, 'maxArea', 300,... % 1 300
+    limits = struct('maxBlobsArea', 5,... % 5
+                    'minArea', 5, 'maxArea', 200,... % 1 300
                     'minStd', 16, 'maxStd', 53,...     % old: 3:53 new: 16:53
                     'minMean', 68, 'maxMean', 132,... % old: 60:132 new 68:132
                     'minContrast', 91, 'maxContrast', 508,... % old: 45:574 new 91:508
@@ -45,15 +45,16 @@ else
                     'minVolume', 2000, 'maxVolume', 10000); % 300 10000
 end         
             
-isVisual = 1;
-nTimeframe = 9; %9 Choose the number of a timeframe %2
-nSlice = 65; %65
+isVisual = 0;
+nTimeframe = 17; %9 Choose the number of timeframe %2
+% nSlice = 65; %65
 scrSz = get(0, 'Screensize');%89
-
+for nSlice = 53:208 
 %% Binarization
 tic;
 I = squeeze(X(:,:,:,nTimeframe));
 % J = double(I);
+
 img = I(:,:,nSlice);
 % level = threshTool(img)/255;
 [level,EM] = graythresh(img);
@@ -204,10 +205,10 @@ if isVisual == 1
     pmSymbol = char(177);
     hold on
     for count = 1 : numPix
-        posX = featuresPix(count).Extrema(1,1) - 10;
-        posY = featuresPix(count).Extrema(1,2) - 4;
+        posX = featuresPix(count).Extrema(1,1) - 17;
+        posY = featuresPix(count).Extrema(1,2) - 6;
         str = sprintf("%d: %d%s%d", count, round(featuresPix(count).Mean,0), pmSymbol, round(featuresPix(count).StandardDeviation, 0));
-        text(posX, posY, char(str), 'FontSize', 26, 'FontName', 'Times New Roman', 'Color', 'g');
+        text(posX, posY, char(str), 'FontSize', 34, 'FontName', 'Times New Roman', 'Color', 'g');
     end
     set(gcf, 'Position', scrSz, 'Color', 'w');
     hold off
@@ -294,9 +295,9 @@ if isVisual == 1
         plot(featuresMean(count).WeightedCentroid(1), featuresMean(count).WeightedCentroid(2), 'r*');
         plot(featuresMean(count).Centroid(1), featuresMean(count).Centroid(2), 'go');
         posX = featuresMean(count).Extrema(1,1) - 4;
-        posY = featuresMean(count).Extrema(1,2) - 4;
+        posY = featuresMean(count).Extrema(1,2) - 6;
         str = sprintf("%d", count);
-        text(posX, posY, char(str), 'FontSize', 26, 'FontName', 'Times New Roman', 'Color', 'g');
+        text(posX, posY, char(str), 'FontSize', 34, 'FontName', 'Times New Roman', 'Color', 'g');
     end
     set(gcf, 'Position', scrSz, 'Color', 'w');
     hold off
@@ -345,9 +346,9 @@ if ~isempty(featuresMean)
         for count = 1:numMean
             rectangle('Position', featuresMean(count).BoundingBox, 'EdgeColor','c');
             posX = featuresMean(count).Extrema(1,1) - 3;
-            posY = featuresMean(count).Extrema(1,2) - 3;
+            posY = featuresMean(count).Extrema(1,2) - 6;
             str = sprintf("%d", count);
-            text(posX, posY, char(str), 'FontSize', 18, 'FontName', 'Times New Roman', 'Color', 'g');
+            text(posX, posY, char(str), 'FontSize', 34, 'FontName', 'Times New Roman', 'Color', 'g');
         end
         hold off
     end
@@ -383,9 +384,9 @@ if isVisual == 1
         plot(featuresGLCM(count).WeightedCentroid(1), featuresGLCM(count).WeightedCentroid(2), 'r*');
         plot(featuresGLCM(count).Centroid(1), featuresGLCM(count).Centroid(2), 'go');
         posX = featuresGLCM(count).Extrema(1,1) - 2;
-        posY = featuresGLCM(count).Extrema(1,2) - 4;
+        posY = featuresGLCM(count).Extrema(1,2) - 6;
         str = sprintf("%d", count);
-        text(posX, posY, char(str), 'FontSize', 26, 'FontName', 'Times New Roman', 'Color', 'g');
+        text(posX, posY, char(str), 'FontSize', 34, 'FontName', 'Times New Roman', 'Color', 'g');
     end
     set(gcf, 'Position', scrSz, 'Color', 'w');
     hold off
@@ -393,64 +394,18 @@ end
 vars.glcmCondition = {'count', 'index', 'str1', 'str2', 'posX', 'posY'};
 clear(vars.glcmCondition{:});
 toc;
-% % %% Extra GLCM analysis
-% % tic;
-% % if ~isempty(featuresMean)
-% %     glcmExtra = cell(1, numGLCM);
-% %     glcmpropsExtra = struct('Autocorrelation', [], 'Dissimilarity', [], 'Entropy', []);
-% %     for i = 1:numGLCM
-% %             rect = featuresGLCM(i).BoundingBox;
-% %             croppedImg = imcrop(img, rect);
-% %             glcmExtra{i} = graycomatrix(croppedImg, 'NumLevels', 255);
-% %             glcmpropsExtra(i) = glcmFeatures(glcmExtra{i},0);
-% %     end
-% % else
-% %     glcmpropsExtra = struct([]);
-% % end
-% % toc;
-% % vars.extraglcmAnalysis = {'i', 'rect', 'croppedImg'};
-% % clear(vars.extraglcmAnalysis{:});
-% % 
-% % %% Extra GLCM detection
-% % tic;
-% % minLimitAutocorrelation = 4349.39835;
-% % maxLimitAutocorrelation = 14823.0147;
-% % minLimitDiss = 7.3326;
-% % maxLimitDiss = 20.6627803571429;
-% % minLimitEnropy = 2.19700485487849;
-% % maxLimitEnropy = 5.79080134417099;
-% % if ~isempty(glcmpropsExtra)
-% %     index = find([glcmpropsExtra.Autocorrelation] >= minLimitAutocorrelation & [glcmpropsExtra.Autocorrelation] <= maxLimitAutocorrelation &...
-% %                  [glcmpropsExtra.Dissimilarity] >= minLimitDiss & [glcmpropsExtra.Dissimilarity] <= maxLimitDiss &...
-% %                  [glcmpropsExtra.Entropy] >= minLimitEnropy & [glcmpropsExtra.Entropy] <= maxLimitEnropy);
-% %     CCextraglcm = bwconncomp(BWglcm);
-% %     Lextraglcm = labelmatrix(CCextraglcm);
-% %     BWextraglcm = ismember(Lextraglcm, index);
-% % else
-% %     BWextraglcm = BWglcm;
-% % end
-% % featuresExtraGLCM = regionprops(BWextraglcm, img, {'Centroid', 'PixelValues', 'BoundingBox', 'WeightedCentroid', 'Extrema'});
-% % numExtraGLCM = numel(featuresExtraGLCM);
-% % imshow(img, 'InitialMagnification', 'fit');
-% % str1 = sprintf('Extra GLCM object detection'); 
-% % str2 = sprintf('Objects found: %d', numExtraGLCM); 
-% % addTitle({str1; str2});
-% % hold on
-% % for count = 1:numExtraGLCM
-% %     rectangle('Position', featuresExtraGLCM(count).BoundingBox, 'EdgeColor','c');
-% %     plot(featuresExtraGLCM(count).WeightedCentroid(1), featuresExtraGLCM(count).WeightedCentroid(2), 'r*');
-% %     plot(featuresExtraGLCM(count).Centroid(1), featuresExtraGLCM(count).Centroid(2), 'go');
-% %     posX = featuresExtraGLCM(count).Extrema(1,1) - 3;
-% %     posY = featuresExtraGLCM(count).Extrema(1,2) - 3;
-% %     str = sprintf("%d", count);
-% %     text(posX, posY, char(str), 'FontSize', 12, 'FontName', 'Times New Roman', 'Color', 'g');
-% % end
-% % toc;
-% % set(gcf, 'Position', scrSz, 'Color', 'w');
-% % hold off
-% % vars.extraglcmCondition = {'index', 'str', 'posX', 'posY'};
-% % clear(vars.extraglcmCondition{:});
 
+% Array with the objects detected in different steps
+row = nSlice - 52;
+numObjects(row, 1) = nSlice;
+numObjects(row, 2) = numFill;
+numObjects(row, 3) = numOpen;
+numObjects(row, 4) = numArea;
+numObjects(row, 5) = numStd;
+numObjects(row, 6) = numMean;
+numObjects(row, 7) = numGLCM;
+
+end
 %% Visualization
 % DataExplorer(J); %double
 %  viewer3d(J); %double
